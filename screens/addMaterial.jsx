@@ -42,9 +42,9 @@ const AddMaterialSizeScreen = () => {
     }
 
     Alert.alert("Success", "Sizes and materials saved successfully!");
-    setSizeList([]); // Clear the list after saving
-    setMaterialList([]); // Clear the list after saving
-    navigation.navigate("SizeListScreen", { sizeList, materialList });
+    setSizeList([]);
+    setMaterialList([]);
+    // navigation.navigate("SizeListScreen", { sizeList, materialList });
   };
 
   const clearSizes = () => {
@@ -59,14 +59,7 @@ const AddMaterialSizeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add a New Size</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Size name"
-        value={sizeName}
-        onChangeText={setSizeName}
-      />
-      <Button title="Add Size" onPress={handleAddSizeToList} />
+      <Text style={styles.title}>Add Material </Text>
 
       <TextInput
         style={styles.input}
@@ -75,14 +68,6 @@ const AddMaterialSizeScreen = () => {
         onChangeText={setMaterialName}
       />
       <Button title="Add Material" onPress={handleAddMaterialToList} />
-
-      <FlatList
-        data={sizeList}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
-        ListHeaderComponent={<Text style={styles.listHeader}>Sizes:</Text>}
-      />
-      <Button title="Clear All Sizes" onPress={clearSizes} color="red" />
 
       <FlatList
         data={materialList}
