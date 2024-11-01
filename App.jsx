@@ -1,11 +1,15 @@
+import React from "react";
 import Navigation from "./navigation";
 import { NavigationProvider } from "./navigationContext";
+import { DatabaseProvider } from "./databaseContext"; // Adjust the path accordingly
 
-const App = ({ navigation }) => {
+const App = () => {
   return (
-    <NavigationProvider>
-      <Navigation />
-    </NavigationProvider>
+    <DatabaseProvider>
+      <NavigationProvider>
+        <Navigation />
+      </NavigationProvider>
+    </DatabaseProvider>
   );
 };
 

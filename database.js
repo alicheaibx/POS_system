@@ -1,20 +1,24 @@
 import SQLite from "react-native-sqlite-storage";
 
+// Enable debugging and promises for SQLite
 SQLite.DEBUG(true);
 SQLite.enablePromise(true);
 
 let db;
+let dbInitialized = false; // Initialize a flag to track database state
 
 // Function to initialize the database
-const initDB = async () => {
-  if (!db) {
+export const initDB = async () => {
+  if (!dbInitialized) {
     try {
+      // Open the database
       db = await SQLite.openDatabase({
         name: "userDatabase",
         location: "default",
       });
       console.log("Database opened successfully");
-      await createTable(); // Ensure the table is created after database is opened
+      await createTable(); // Ensure the table is created after the database is opened
+      dbInitialized = true; // Set the flag to true after initialization
     } catch (error) {
       console.error("Error opening database:", error);
       db = null; // Reset db on error
@@ -78,8 +82,14 @@ export const getUser = async (email, password) => {
           "SELECT * FROM Users WHERE email = ? AND password = ?;",
           [email, password],
           (_, result) => {
-            console.log("User fetched successfully:", result);
-            resolve(result);
+            // Check if user is found
+            if (result.rows.length > 0) {
+              console.log("User fetched successfully:", result.rows.item(0));
+              resolve(result.rows.item(0)); // Resolve with the first matching user
+            } else {
+              console.log("No user found");
+              resolve(null); // No user found
+            }
           },
           (_, error) => {
             console.error("Error fetching user:", error);
@@ -94,4 +104,5 @@ export const getUser = async (email, password) => {
   });
 };
 
+// Export the database instance for direct access if needed
 export default db;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { insertUser } from "../database"; // Update with the correct path
+import { insertUser } from "../database"; // Adjust the path
 import { useNavigation } from "../navigationContext";
+import { useDatabase } from "../databaseContext"; // Import the context
 
 const Signup = () => {
   const navigation = useNavigation();
+  const { dbInitialized } = useDatabase(); // Access dbInitialized
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [nameError, setNameError] = useState("");
@@ -38,6 +40,13 @@ const Signup = () => {
   };
 
   const handleSignup = async () => {
+    await initDB(); // Ensure the database is initialized
+
+    if (!dbInitialized) {
+      alert("Database is not initialized yet. Please wait.");
+      return;
+    }
+
     if (validate()) {
       try {
         await insertUser(name, null, password); // Pass null for email
