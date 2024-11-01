@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Datastore from "react-native-local-mongodb";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DatabaseContext = createContext();
 
@@ -13,11 +13,11 @@ export const DatabaseProvider = ({ children }) => {
   useEffect(() => {
     const initializeDB = async () => {
       try {
-        // Create a new instance of the database with the storage option
+        // Create a new instance of the database with the correct storage option
         const database = new Datastore({
           filename: "userDatabase",
-          storage: AsyncStorage, // Add this line
           autoload: true,
+          storage: AsyncStorage, // Ensure AsyncStorage is passed correctly
         });
 
         database.loadDatabase((error) => {

@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useDatabase } from "../databaseContext";
+import { useDatabase } from "../databaseContext"; // Ensure this imports your database context
+import { addUser } from "../database"; // Make sure to import addUser from the correct path
 
 const Signup = () => {
-  const { db, dbInitialized } = useDatabase();
+  const { dbInitialized } = useDatabase();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [nameError, setNameError] = useState("");
@@ -36,30 +37,24 @@ const Signup = () => {
     return isValid;
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!dbInitialized) {
       alert("Database is not initialized yet. Please wait.");
       return;
     }
 
     if (validate()) {
-      db.transaction((tx) => {
-        tx.executeSql(
-          "INSERT INTO users (name, password) VALUES (?, ?);",
-          [name, password],
-          () => {
-            console.log("User inserted successfully");
-            alert("Signup successful!");
-            // Clear input fields after successful signup
-            setName("");
-            setPassword("");
-          },
-          (error) => {
-            console.error("Error inserting user:", error);
-            alert("An error occurred. Please try again.");
-          }
-        );
-      });
+      try {
+        await addUser({ name, password }); // Use the addUser function
+        console.log("User inserted successfully");
+        alert("Signup successful!");
+        // Clear input fields after successful signup
+        setName("");
+        setPassword("");
+      } catch (error) {
+        console.error("Error inserting user:", error);
+        alert("An error occurred. Please try again.");
+      }
     }
   };
 

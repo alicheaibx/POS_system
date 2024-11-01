@@ -1,6 +1,12 @@
 import Datastore from "react-native-local-mongodb";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const database = new Datastore({ filename: "userDatabase", autoload: true });
+// Create a new instance of the database
+const database = new Datastore({
+  filename: "userDatabase",
+  autoload: true,
+  storage: AsyncStorage, // Ensure AsyncStorage is used as the storage
+});
 
 // Function to add a user to the database
 export const addUser = (user) => {
