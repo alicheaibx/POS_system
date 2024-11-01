@@ -11,9 +11,9 @@ import { useNavigation } from "../navigationContext";
 
 const Login = () => {
   const navigation = useNavigation();
-  const [name, setName] = useState(""); // Change email to name
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [nameError, setNameError] = useState(""); // Change emailError to nameError
+  const [nameError, setNameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
@@ -32,11 +32,11 @@ const Login = () => {
 
   const validate = () => {
     let isValid = true;
-    setNameError(""); // Reset nameError
+    setNameError("");
     setPasswordError("");
 
     if (!name) {
-      setNameError("Name is required"); // Validate name
+      setNameError("Name is required");
       isValid = false;
     }
 
@@ -53,12 +53,10 @@ const Login = () => {
 
   const handleLogin = () => {
     if (validate()) {
-      // Replace the condition to check name instead of email
       if (name === "testUser" && password === "password123") {
-        // Use appropriate credentials for comparison
-        navigation.navigate("GetStarted"); // Navigate to GetStarted on successful login
+        navigation.navigate("GetStarted");
       } else {
-        setNameError("Invalid credentials"); // Show error if credentials are incorrect
+        setNameError("Invalid credentials");
       }
     }
   };
@@ -68,7 +66,7 @@ const Login = () => {
       <Text style={styles.header}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder="Name" // Change placeholder to Name
+        placeholder="Name"
         onChangeText={setName}
         value={name}
       />
@@ -123,13 +121,6 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 10,
   },
-  signupText: {
-    marginTop: 20,
-    textAlign: "center",
-  },
-  signupLink: {
-    color: "blue",
-  },
   loginButton: {
     backgroundColor: "#F49700",
     padding: 12,
@@ -140,6 +131,14 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  signupText: {
+    textAlign: "center",
+    marginTop: 20,
+  },
+  signupLink: {
+    color: "#F49700",
+    fontWeight: "bold",
   },
 });
 

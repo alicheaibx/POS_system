@@ -1,32 +1,54 @@
-// DatabaseContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { initDB } from "./database"; // Adjust the path accordingly
+import Datastore from "react-native-local-mongodb";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 
 const DatabaseContext = createContext();
 
+export const useDatabase = () => useContext(DatabaseContext);
+
 export const DatabaseProvider = ({ children }) => {
+  const [db, setDb] = useState(null);
   const [dbInitialized, setDbInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeDatabase = async () => {
+    const initializeDB = async () => {
       try {
-        await initDB();
-        setDbInitialized(true);
+        // Create a new instance of the database with the storage option
+        const database = new Datastore({
+          filename: "userDatabase",
+          storage: AsyncStorage, // Add this line
+          autoload: true,
+        });
+
+        database.loadDatabase((error) => {
+          if (error) {
+            console.error("Error loading database:", error);
+          } else {
+            console.log("Database loaded successfully");
+            setDb(database);
+            setDbInitialized(true);
+
+            // Ensure the 'users' collection structure is available (optional)
+            database.ensureIndex({ fieldName: "id", unique: true }, (err) => {
+              if (err) {
+                console.error("Error creating index:", err);
+              } else {
+                console.log("Index created successfully");
+              }
+            });
+          }
+        });
       } catch (error) {
         console.error("Error initializing database:", error);
       }
     };
 
-    initializeDatabase();
+    initializeDB();
   }, []);
 
   return (
-    <DatabaseContext.Provider value={{ dbInitialized }}>
+    <DatabaseContext.Provider value={{ db, dbInitialized }}>
       {children}
     </DatabaseContext.Provider>
   );
-};
-
-export const useDatabase = () => {
-  return useContext(DatabaseContext);
 };

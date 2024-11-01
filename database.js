@@ -1,108 +1,59 @@
-import SQLite from "react-native-sqlite-storage";
+import Datastore from "react-native-local-mongodb";
 
-// Enable debugging and promises for SQLite
-SQLite.DEBUG(true);
-SQLite.enablePromise(true);
+const database = new Datastore({ filename: "userDatabase", autoload: true });
 
-let db;
-let dbInitialized = false; // Initialize a flag to track database state
-
-// Function to initialize the database
-export const initDB = async () => {
-  if (!dbInitialized) {
-    try {
-      // Open the database
-      db = await SQLite.openDatabase({
-        name: "userDatabase",
-        location: "default",
-      });
-      console.log("Database opened successfully");
-      await createTable(); // Ensure the table is created after the database is opened
-      dbInitialized = true; // Set the flag to true after initialization
-    } catch (error) {
-      console.error("Error opening database:", error);
-      db = null; // Reset db on error
-    }
-  }
-};
-
-// Function to create the Users table
-export const createTable = async () => {
-  if (db) {
-    try {
-      await db.transaction((tx) => {
-        tx.executeSql(
-          "CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, password TEXT);"
-        );
-      });
-      console.log("Table created successfully");
-    } catch (error) {
-      console.error("Error creating table:", error);
-      alert("Error creating table"); // Alert user for quick feedback
-    }
-  } else {
-    console.error("Database not initialized");
-    alert("Database not initialized"); // Alert user for quick feedback
-  }
-};
-
-// Function to insert a user into the Users table
-export const insertUser = async (name, email, password) => {
-  await initDB(); // Ensure the database is initialized
+// Function to add a user to the database
+export const addUser = (user) => {
   return new Promise((resolve, reject) => {
-    if (db) {
-      db.transaction((tx) => {
-        tx.executeSql(
-          "INSERT INTO Users (name, email, password) VALUES (?, ?, ?);",
-          [name, email, password],
-          (_, result) => {
-            console.log("User inserted successfully:", result);
-            resolve(result);
-          },
-          (_, error) => {
-            console.error("Error inserting user:", error);
-            reject(error);
-          }
-        );
-      });
-    } else {
-      console.error("Database not initialized");
-      reject(new Error("Database not initialized"));
-    }
+    database.insert(user, (err, newDoc) => {
+      if (err) {
+        reject("Error adding user:", err);
+      } else {
+        console.log("User added successfully:", newDoc);
+        resolve(newDoc);
+      }
+    });
   });
 };
 
-// Function to get a user from the Users table
-export const getUser = async (email, password) => {
-  await initDB(); // Ensure the database is initialized
+// Function to fetch all users from the database
+export const getUsers = () => {
   return new Promise((resolve, reject) => {
-    if (db) {
-      db.transaction((tx) => {
-        tx.executeSql(
-          "SELECT * FROM Users WHERE email = ? AND password = ?;",
-          [email, password],
-          (_, result) => {
-            // Check if user is found
-            if (result.rows.length > 0) {
-              console.log("User fetched successfully:", result.rows.item(0));
-              resolve(result.rows.item(0)); // Resolve with the first matching user
-            } else {
-              console.log("No user found");
-              resolve(null); // No user found
-            }
-          },
-          (_, error) => {
-            console.error("Error fetching user:", error);
-            reject(error);
-          }
-        );
-      });
-    } else {
-      console.error("Database not initialized");
-      reject(new Error("Database not initialized"));
-    }
+    database.find({}, (err, docs) => {
+      if (err) {
+        reject("Error fetching users:", err);
+      } else {
+        console.log("Users fetched successfully:", docs);
+        resolve(docs);
+      }
+    });
   });
 };
 
-// Export the database instance for direct access if needed
-export default db;
+// Function to update a user in the database
+export const updateUser = (id, updates) => {
+  return new Promise((resolve, reject) => {
+    database.update({ _id: id }, { $set: updates }, {}, (err, numReplaced) => {
+      if (err) {
+        reject("Error updating user:", err);
+      } else {
+        console.log("User updated successfully:", numReplaced);
+        resolve(numReplaced);
+      }
+    });
+  });
+};
+
+// Function to delete a user from the database
+export const deleteUser = (id) => {
+  return new Promise((resolve, reject) => {
+    database.remove({ _id: id }, {}, (err, numRemoved) => {
+      if (err) {
+        reject("Error deleting user:", err);
+      } else {
+        console.log("User deleted successfully:", numRemoved);
+        resolve(numRemoved);
+      }
+    });
+  });
+};
